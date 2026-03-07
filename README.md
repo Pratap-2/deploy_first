@@ -4,12 +4,9 @@
 
 ---
 
-## 🔗 Repositories
+## 🔗 Repository
 
-| Repo | Description | Link |
-|---|---|---|
-| **code-ide** | React frontend (code editor, chat, analysis UI) | [github.com/Aditya5240/code-ide](https://github.com/Aditya5240/code-ide) |
-| **backend** | FastAPI backend — AI pipelines, Azure services, LangGraph | [github.com/Aditya5240/backend](https://github.com/Aditya5240/backend) |
+**GitHub:** [github.com/Aditya5240/code-ide](https://github.com/Aditya5240/code-ide)
 
 ---
 
@@ -33,29 +30,26 @@
 
 ## 🏗️ Architecture
 
-The project is split into **two separate repositories**:
-
 ```
-MS PROJECT/
+code-ide/                        ← This repo
 │
-├── code-ide/          ← Frontend repo (this repo)
-│   └── client/
-│       └── src/
-│           └── pages/
-│               ├── Landing.js    # Resume upload + candidate dashboard
-│               ├── Interview.js  # Code editor + AI chat + timer
-│               └── Analysis.js  # Post-interview report
+├── client/                      # React frontend
+│   └── src/
+│       └── pages/
+│           ├── Landing.js       # Resume upload + candidate dashboard
+│           ├── Interview.js     # Code editor + AI chat + timer
+│           └── Analysis.js      # Post-interview report
 │
-└── backend/           ← Backend repo (separate: github.com/Aditya5240/backend)
-    ├── main.py                   # All FastAPI routes
-    ├── cv_parser.py              # Resume parsing (PyPDF2 / python-docx)
+└── backend/                     # FastAPI backend
+    ├── main.py                  # All API routes
+    ├── cv_parser.py             # Resume parsing (PyPDF2 / python-docx)
     ├── requirements.txt
     └── app/
-        ├── schemas.py            # Pydantic models
-        ├── problems.py           # Coding problems bank
-        ├── graph_builder.py      # LangGraph pipeline
-        ├── state.py              # Shared state schema
-        ├── nodes/                # LangGraph nodes
+        ├── schemas.py           # Pydantic models
+        ├── problems.py          # Coding problems bank
+        ├── graph_builder.py     # LangGraph pipeline
+        ├── state.py             # Shared state schema
+        ├── nodes/               # LangGraph nodes
         │   ├── interviewer_node.py
         │   ├── hint_node.py
         │   ├── evaluator_node.py
@@ -63,13 +57,13 @@ MS PROJECT/
         │   ├── tracker_node.py
         │   └── wrapup_node.py
         └── services/
-            ├── llm.py            # Groq LLM (chat temp=0.7, analysis temp=0.4)
-            ├── speech_service.py # Azure TTS
-            ├── session_store.py  # Azure Cosmos DB session CRUD
-            └── cosmos_services.py
+            ├── llm.py           # Groq LLM (chat=0.7, analysis=0.4)
+            ├── speech_service.py    # Azure TTS
+            ├── session_store.py    # Azure Cosmos DB sessions
+            └── cosmos_services.py  # Cosmos DB helpers
 ```
 
-> ℹ️ The React frontend (`client/`) calls the FastAPI backend at `http://localhost:8000`.
+> ℹ️ The React frontend (`client/`) communicates with the FastAPI backend at `http://localhost:8000`.
 
 ---
 
@@ -80,7 +74,7 @@ MS PROJECT/
 |---|---|
 | React 18 | UI framework |
 | `@monaco-editor/react` | VS Code-style code editor |
-| `recharts` | Pie & bar charts for resume dashboard |
+| `recharts` | Charts for resume dashboard |
 | `axios` | HTTP client |
 | `react-router-dom` | SPA routing |
 
@@ -89,7 +83,7 @@ MS PROJECT/
 |---|---|
 | FastAPI | REST API framework |
 | LangChain + LangGraph | LLM orchestration pipeline |
-| `langchain-groq` | LLaMA 3.3 70B Versatile via Groq API |
+| `langchain-groq` | LLaMA 3.3 70B via Groq API |
 | `azure-cognitiveservices-speech` | Text-to-Speech + Speech-to-Text |
 | `azure-search-documents` | Vector search for resume embeddings |
 | `azure-cosmos` | Session state persistence |
@@ -102,24 +96,16 @@ MS PROJECT/
 ### Prerequisites
 - Python 3.11+
 - Node.js 18+
-- A virtual environment (recommended)
-- `g++` compiler on PATH (for C++ code execution)
-- API keys (see Environment Variables below)
+- `g++` on PATH (for C++ code execution)
+- API keys (see below)
 
 ---
 
-### 1. Clone both repositories
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Aditya5240/code-ide.git
-git clone https://github.com/Aditya5240/backend.git
-```
-
-Place them side-by-side:
-```
-MS PROJECT/
-├── code-ide/
-└── backend/
+cd code-ide
 ```
 
 ---
@@ -127,7 +113,7 @@ MS PROJECT/
 ### 2. Backend Setup
 
 ```bash
-# Create and activate virtual environment (from MS PROJECT/ root)
+# Create and activate virtual environment
 python -m venv ms
 .\ms\Scripts\Activate.ps1        # Windows PowerShell
 # source ms/bin/activate         # macOS / Linux
@@ -167,11 +153,11 @@ COSMOS_CONTAINER=sessions
 #### Start the backend
 
 ```bash
-# From the backend/ directory with venv active:
+# From inside backend/ with venv active:
 uvicorn main:app --port 8000 --reload
 ```
 
-> The API will be available at `http://localhost:8000`  
+> API: `http://localhost:8000`  
 > Interactive docs: `http://localhost:8000/docs`
 
 ---
@@ -179,12 +165,12 @@ uvicorn main:app --port 8000 --reload
 ### 3. Frontend Setup
 
 ```bash
-cd code-ide/client
+cd client
 npm install
 npm start
 ```
 
-The React app opens at `http://localhost:3000`.
+> App opens at `http://localhost:3000`
 
 ---
 
@@ -193,16 +179,16 @@ The React app opens at `http://localhost:3000`.
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/problem/{id}` | Fetch problem (solution hidden) |
-| `POST` | `/run` | Compile & run C++ code (via `g++`) |
+| `POST` | `/run` | Compile & run C++ code |
 | `POST` | `/ai/parse_resume` | Parse uploaded CV (MD5 cached) |
-| `POST` | `/ai/welcome` | Generate welcome audio for interview start |
-| `POST` | `/ai/chat` | Multi-turn chat with CS concept detection |
+| `POST` | `/ai/welcome` | Welcome audio for interview start |
+| `POST` | `/ai/chat` | Multi-turn chat with concept detection |
 | `POST` | `/ai/hint` | Progressive hints (5 levels) |
 | `POST` | `/ai/periodic` | Periodic progress nudge (every 60s) |
-| `POST` | `/ai/evaluation` | Final code evaluation on submission |
-| `POST` | `/ai/stt` | Speech-to-Text (audio file → transcript) |
+| `POST` | `/ai/evaluation` | Final code evaluation |
+| `POST` | `/ai/stt` | Speech-to-Text (audio → transcript) |
 | `POST` | `/update_code` | Sync code + run LangGraph pipeline |
-| `GET` | `/session/{id}/analysis` | Fetch post-interview analysis + scores |
+| `GET` | `/session/{id}/analysis` | Post-interview analysis + scores |
 
 ---
 
@@ -214,62 +200,42 @@ The React app opens at `http://localhost:3000`.
 - View personalised dashboard with skills, projects, and experience
 
 ### 2. Start Interview
-- Click **Start Interview** from the dashboard
-- The AI tutor greets you and introduces the problem
+- Click **Start Interview** — AI tutor greets you and introduces the problem
 
 ### 3. During the Interview
 
 | Action | How |
 |---|---|
 | Write code | Monaco editor (centre panel) |
-| Run tests | **▶ Run Tests** button |
-| Ask a question | Type in chat OR use 🎙️ voice input |
-| Get a hint | **💡 I'm Stuck** button (5 progressive levels) |
-| Go fullscreen | **⛶ Full** toolbar button |
+| Run tests | **▶ Run Tests** |
+| Ask a question | Type in chat OR 🎙️ voice input |
+| Get a hint | **💡 I'm Stuck** (5 progressive levels) |
+| Fullscreen | **⛶ Full** toolbar button |
 | Hide/show chat | **💬 Hide Chat** toolbar button |
 | Toggle theme | **☀️ / 🌙** toolbar button |
-| End early | **🛑 End** — stops audio, goes to analysis |
-| Submit | **✅ Submit** — final AI feedback then analysis |
+| End early | **🛑 End** → goes to analysis |
+| Submit | **✅ Submit** → final AI eval → analysis |
 
 ### 4. Analysis Page
-- View your score graph over the 15-minute session
-- Read the AI's final evaluation of your code
+- Score graph over the 15-minute session
+- AI's final evaluation of your code
 
 ---
 
 ## 🔑 Key Design Decisions
 
-### Chat Route Ordering (FastAPI)
-`/ai/chat` is declared **before** `/ai/{ai_type}`. FastAPI matches routes in registration order — the wildcard would otherwise intercept chat requests.
+### Chat Route Ordering
+`/ai/chat` is declared **before** `/ai/{ai_type}` — FastAPI matches routes in order; the wildcard would otherwise intercept chat requests.
 
 ### Concept Question Detection
-Messages are scanned for keywords (`"what is"`, `"explain"`, `"difference between"`, etc.) before calling the LLM. Concept questions are sent **without** the problem context so the model teaches the concept purely.
+Messages scanned for keywords (`"what is"`, `"explain"`, `"difference between"`, etc.) before calling LLM. Concept questions sent without problem context — model teaches purely.
 
 ### Resume Caching
-File bytes are hashed (MD5) before parsing. The same resume (regardless of filename) returns cached results instantly from an in-memory dict.
+File bytes hashed (MD5) before parsing. Same resume returns cached results instantly from in-memory dict.
 
 ### Dual LLM Temperature
-- `chat` mode: `temperature=0.7` — creative, varied educational answers  
-- `analysis` mode: `temperature=0.4` — deterministic, consistent evaluation
-
----
-
-## 📁 Key Files
-
-| File | Repo | Role |
-|---|---|---|
-| `main.py` | backend | All FastAPI routes |
-| `cv_parser.py` | backend | Resume parsing + Azure Search ingestion |
-| `app/schemas.py` | backend | Pydantic request/response models |
-| `app/problems.py` | backend | Coding problem definitions |
-| `app/graph_builder.py` | backend | LangGraph pipeline wiring |
-| `app/state.py` | backend | Shared state TypedDict |
-| `app/services/llm.py` | backend | LLM factory (chat vs analysis) |
-| `app/services/session_store.py` | backend | Cosmos DB session CRUD |
-| `app/services/speech_service.py` | backend | Azure TTS helper |
-| `client/src/pages/Landing.js` | code-ide | Resume upload + dashboard with charts |
-| `client/src/pages/Interview.js` | code-ide | Full interview UI |
-| `client/src/pages/Analysis.js` | code-ide | Post-interview report |
+- `chat`: `temperature=0.7` — creative, educational  
+- `analysis`: `temperature=0.4` — deterministic, consistent
 
 ---
 
