@@ -6,19 +6,21 @@ def save_session(state):
     if not container:
         return
 
-    item = {
-        "id": state["session_id"],
-        "session_id": state["session_id"],
-        "problem_statement": state["problem_statement"],
-        "current_code": state["current_code"],
-        "compiler_output": state["compiler_output"],
-        "analysis": state.get("code_analysis", ""),
-        "messages": state.get("messages", []),
-        "ping_count": state.get("ping_count", 0),
-        "start_time": state.get("start_time", None),
-        "last_activity": state.get("last_activity", None),
-        "hint_level": state.get("hint_level", 0),
-    }
+    session_id = state.get("session_id", state.get("id"))
+    if not session_id:
+        return
+
+    # To preserve fields like resume_data, progress_scores, evaluation
+    existing = load_session(session_id)
+    
+    if existing:
+        item = existing[-1] if isinstance(existing, list) else existing
+        for k, v in state.items():
+            item[k] = v
+        item["id"] = session_id
+    else:
+        item = dict(state)
+        item["id"] = session_id
 
     try:
         container.upsert_item(item)
