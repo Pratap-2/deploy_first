@@ -113,12 +113,12 @@ cd code-ide
 ### 2. Backend Setup
 
 ```bash
-# Create and activate virtual environment
+# From inside code-ide/ — create and activate virtual environment
 python -m venv ms
-.\ms\Scripts\Activate.ps1        # Windows PowerShell
-# source ms/bin/activate         # macOS / Linux
+.\ms\Scripts\Activate.ps1          # Windows PowerShell
+# source ms/bin/activate           # macOS / Linux
 
-# Install dependencies
+# Move into backend and install dependencies
 cd backend
 pip install -r requirements.txt
 ```
@@ -153,7 +153,7 @@ COSMOS_CONTAINER=sessions
 #### Start the backend
 
 ```bash
-# From inside backend/ with venv active:
+# From inside code-ide/backend/ with venv active:
 uvicorn main:app --port 8000 --reload
 ```
 
@@ -163,6 +163,8 @@ uvicorn main:app --port 8000 --reload
 ---
 
 ### 3. Frontend Setup
+
+Open a **new terminal**, navigate back to `code-ide/` and run:
 
 ```bash
 cd client
