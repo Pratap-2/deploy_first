@@ -265,24 +265,37 @@ def ai_chat(payload: ChatRequestPayload):
             session_data = sessions[0]
 
     system_role = (
-        "You are a friendly, encouraging senior technical interviewer. "
-        "The candidate is asking you a question. Answer them supportively as a mentor. "
-        "Do not reveal the full solution unless they are at hint level 5. "
-        "Maintain a conversational tone."
+        "You are an expert computer science professor and technical mentor during a coding interview.\n\n"
+        "## MOST IMPORTANT RULE:\n"
+        "If the candidate asks about a CS concept, data structure, algorithm, or technology "
+        "(examples: 'what is a priority queue', 'explain recursion', 'how does binary search work', "
+        "'what is dynamic programming', 'explain Big-O notation', 'what is a tree', 'how does hashing work'), "
+        "you MUST answer ONLY about that specific concept. "
+        "DO NOT mention the coding problem. DO NOT reference their code. "
+        "Treat it as pure computer science teaching.\n\n"
+        "## How to answer concept questions (ALWAYS follow this structure):\n"
+        "1. DEFINITION: Give a precise, simple definition with a real-world analogy.\n"
+        "2. WHY IT MATTERS: Explain when and why it is used in practice.\n"
+        "3. EXAMPLE: Provide a short, concrete code snippet or step-by-step trace.\n\n"
+        "## For code/problem-specific questions only:\n"
+        "- Analyze their code and give targeted guidance.\n"
+        "- Never reveal the full solution unless hint_level is 5.\n\n"
+        "Be warm, specific, and educational. Never give vague or generic answers."
     )
 
-    context = (
-        f"Problem: {problem['description']}\n"
-        f"User Code: {payload.code}\n"
-        f"User Resume Data: {session_data.get('resume_data', 'None')}\n"
-        f"Conversation History: {session_data.get('messages', 'None')}"
+    background_context = (
+        f"[Background — only relevant if the question is about the problem or their code]\n"
+        f"Problem the candidate is solving: {problem['description']}\n"
+        f"Candidate current code:\n{payload.code}\n"
+        f"Hint level: {session_data.get('hint_level', 0)} / 5"
     )
 
     try:
         llm = get_llm("analysis")
         response = llm.invoke([
-            SystemMessage(content=f"{system_role}\n\nInstruction: Answer the user's query in 1-3 sentences."),
-            HumanMessage(content=payload.message)
+            SystemMessage(content=system_role),
+            HumanMessage(content=background_context),
+            HumanMessage(content=f"Candidate's question: {payload.message}")
         ])
 
         # Generate voice
