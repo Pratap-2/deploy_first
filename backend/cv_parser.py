@@ -216,8 +216,17 @@ class CVParser:
         content = response.content.strip()
         content = content.replace("```json", "").replace("```", "")
         try:
+            # Try to parse directly first
             return json.loads(content)
         except:
+            # Fallback: try to extract just the JSON part using regex
+            import re
+            match = re.search(r'\{[\s\S]*\}', content)
+            if match:
+                try:
+                    return json.loads(match.group(0))
+                except:
+                    pass
             print("LLM returned invalid JSON")
             print(content)
             return {}
