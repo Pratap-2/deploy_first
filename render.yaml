@@ -19,12 +19,12 @@ services:
         sync: false
 
   # Frontend Service
-  - type: static_site
+  - type: web
     name: code-ide-frontend
     env: static
     rootDir: client
     buildCommand: "npm install && npm run build"
-    publishPath: "build"
+    staticPublishPath: "build"
     envVars:
       - key: REACT_APP_API_URL
         fromService:
