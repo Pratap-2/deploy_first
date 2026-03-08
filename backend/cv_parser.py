@@ -187,7 +187,8 @@ class CVParser:
         prompt = f"""
         Extract structured information from the following resume.
 
-        Return ONLY valid JSON with this schema:
+        You MUST output ONLY valid JSON. Absolutely no other text, no intro, no markdown blocks.
+        Use exactly this schema:
 
         {{
         "name": "",
@@ -212,7 +213,12 @@ class CVParser:
         Resume:
         {text}
         """
-        response = self.llm.invoke(prompt)
+        try:
+            llm_with_json = self.llm.bind(response_format={"type": "json_object"})
+            response = llm_with_json.invoke(prompt)
+        except Exception as e:
+            print(f"Failed JSON mode, falling back to standard: {e}")
+            response = self.llm.invoke(prompt)
         content = response.content.strip()
         content = content.replace("```json", "").replace("```", "")
         try:
