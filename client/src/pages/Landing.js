@@ -26,6 +26,7 @@ const CustomTooltip = ({ active, payload }) => {
 
 const Landing = () => {
     const navigate = useNavigate();
+    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
     const [resumeFile, setResumeFile] = useState(null);
     const [isParsing, setIsParsing] = useState(false);
     const [parsedData, setParsedData] = useState(null);
@@ -39,7 +40,7 @@ const Landing = () => {
             const formData = new FormData();
             formData.append("file", resumeFile);
             formData.append("session_id", sessionId);
-            const res = await axios.post("http://localhost:8000/ai/parse_resume", formData);
+            const res = await axios.post(`${API_URL}/ai/parse_resume`, formData);
             if (res.data.success) {
                 const cv = res.data.data || {};
                 setRawData(cv);
@@ -64,7 +65,7 @@ const Landing = () => {
 
     const handleStartInterview = async () => {
         try { globalAudioContext.play().catch(e => console.warn("Audio unlock prevented", e)); } catch(e){}
-        axios.post("http://localhost:8000/ai/welcome", { code: "", problemId: 1 }).then(res => {
+        axios.post(`${API_URL}/ai/welcome`, { code: "", problemId: 1 }).then(res => {
              if(res.data.audio) {
                  sessionStorage.setItem(`welcomeAudio_${sessionId}`, res.data.audio);
              }

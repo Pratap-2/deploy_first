@@ -5,7 +5,7 @@ from azure.cosmos import CosmosClient, PartitionKey
 load_dotenv()
 
 endpoint = os.getenv("COSMOS_ENDPOINT")
-key = os.getenv("COSMOS_ACCOUNT_KEY")
+key = os.getenv("COSMOS_KEY")
 
 database_name = os.getenv("COSMOS_DATABASE")
 container_name = os.getenv("COSMOS_CONTAINER")

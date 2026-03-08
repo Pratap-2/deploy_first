@@ -5,6 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import congratsImage from "../assets/motivational_congrats.png";
 
 const Analysis = () => {
+    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
     const [searchParams] = useSearchParams();
     const sessionId = searchParams.get("session");
     const navigate = useNavigate();
@@ -19,7 +20,7 @@ const Analysis = () => {
         
         const fetchAnalysis = async () => {
             try {
-                const res = await axios.get(`http://localhost:8000/session/${sessionId}/analysis`);
+                const res = await axios.get(`${API_URL}/session/${sessionId}/analysis`);
                 setReport(res.data.analysis || "No analysis found for this session.");
                 setScores(res.data.progress_scores || []);
             } catch (err) {

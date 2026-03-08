@@ -6,6 +6,7 @@ import { globalAudioContext } from "./Landing";
 
 const Interview = () => {
   const { problemId } = useParams();
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session") || "default";
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ const Interview = () => {
   useEffect(() => {
     const fetchProblem = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/problem/${problemId || 1}`);
+        const res = await axios.get(`${API_URL}/problem/${problemId || 1}`);
         setProblem(res.data);
       } catch (err) { console.error("Error fetching problem:", err); }
     };
@@ -84,7 +85,7 @@ const Interview = () => {
         playBase64Audio(savedAudio);
         sessionStorage.removeItem(`welcomeAudio_${sessionId}`);
       } else {
-        axios.post("http://localhost:8000/ai/welcome", { code: "", problemId: problemId || 1 })
+        axios.post(`${API_URL}/ai/welcome`, { code: "", problemId: problemId || 1 })
           .then(res => { if (res.data.audio) playBase64Audio(res.data.audio); })
           .catch(e => console.log(e));
       }
@@ -94,7 +95,7 @@ const Interview = () => {
   const triggerAIAnalysis = useCallback(async (type) => {
     setIsThinking(true);
     try {
-      const res = await axios.post(`http://localhost:8000/ai/${type}`, {
+      const res = await axios.post(`${API_URL}/ai/${type}`, {
         code, problemId: problemId || 1, session_id: sessionId
       });
       setChatLog(prev => [...prev, { role: "AI", text: res.data.feedback }]);
@@ -121,7 +122,7 @@ const Interview = () => {
     stopAudio();
     if (recognitionRef.current) { try { recognitionRef.current.stop(); } catch (e) {} setIsRecording(false); }
     try {
-      const res = await axios.post("http://localhost:8000/ai/evaluation", { code, problemId: problemId || 1, session_id: sessionId });
+      const res = await axios.post(`${API_URL}/ai/evaluation`, { code, problemId: problemId || 1, session_id: sessionId });
       setChatLog(prev => [...prev, { role: "SYSTEM", text: "SUBMITTED" }, { role: "AI", text: res.data.feedback }]);
       if (res.data.audio) playBase64Audio(res.data.audio);
       setTimeout(() => navigate(`/analysis?session=${sessionId}`), 6000);
@@ -139,7 +140,7 @@ const Interview = () => {
     setChatInput("");
     setIsThinking(true);
     try {
-      const res = await axios.post("http://localhost:8000/ai/chat", {
+      const res = await axios.post(`${API_URL}/ai/chat`, {
         message: text, session_id: sessionId, code, problemId: problemId || 1, history: chatHistory
       });
       const aiReply = res.data.feedback;
@@ -185,7 +186,7 @@ const Interview = () => {
   const syncWithBackend = useCallback(async (currentOutput) => {
     if (!problem) return;
     try {
-      const res = await axios.post("http://localhost:8000/update_code", {
+      const res = await axios.post(`${API_URL}/update_code`, {
         session_id: sessionId, problem_statement: problem.description, current_code: code, compiler_output: currentOutput || output
       });
       if (res.data.messages) {
@@ -211,7 +212,7 @@ const Interview = () => {
 
   const runCode = async () => {
     try {
-      const res = await axios.post("http://localhost:8000/run", { code, input: userInput });
+      const res = await axios.post(`${API_URL}/run`, { code, input: userInput });
       setOutput(res.data.output);
       await syncWithBackend(res.data.output);
     } catch (err) { setOutput("Execution Error: " + err.message); }
