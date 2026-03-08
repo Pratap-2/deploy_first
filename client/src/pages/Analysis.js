@@ -29,7 +29,7 @@ const Analysis = () => {
             }
         };
         fetchAnalysis();
-    }, [sessionId, navigate]);
+    }, [sessionId, navigate, API_URL]);
 
     return (
         <div style={{ minHeight: "100vh", backgroundColor: "#0f0f0f", color: "white", fontFamily: "sans-serif", padding: "40px" }}>

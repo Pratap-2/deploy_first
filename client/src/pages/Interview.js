@@ -74,7 +74,7 @@ const Interview = () => {
       } catch (err) { console.error("Error fetching problem:", err); }
     };
     fetchProblem();
-  }, [problemId]);
+  }, [problemId, API_URL]);
 
   // Welcome audio
   useEffect(() => {
@@ -90,7 +90,7 @@ const Interview = () => {
           .catch(e => console.log(e));
       }
     }
-  }, [problem, playBase64Audio, sessionId, problemId]);
+  }, [problem, playBase64Audio, sessionId, problemId, API_URL]);
 
   const triggerAIAnalysis = useCallback(async (type) => {
     setIsThinking(true);
@@ -104,7 +104,7 @@ const Interview = () => {
     } catch (err) {
       console.error("AI Error:", err.response?.data || err.message);
     } finally { setIsThinking(false); }
-  }, [code, problemId, sessionId, playBase64Audio]);
+  }, [code, problemId, sessionId, playBase64Audio, API_URL]);
 
   const stopAudio = useCallback(() => {
     try { globalAudioContext.pause(); globalAudioContext.currentTime = 0; } catch (e) {}
@@ -131,7 +131,7 @@ const Interview = () => {
       navigate(`/analysis?session=${sessionId}`);
     }
     setIsSubmitting(false);
-  }, [isSubmitting, code, problemId, sessionId, playBase64Audio, stopAudio, navigate]);
+  }, [isSubmitting, code, problemId, sessionId, playBase64Audio, stopAudio, navigate, API_URL]);
 
   const sendChatMessage = useCallback(async (msg) => {
     const text = msg || chatInput;
@@ -149,7 +149,7 @@ const Interview = () => {
       if (res.data.audio) playBase64Audio(res.data.audio);
     } catch (err) { console.error("Chat Error:", err); }
     finally { setIsThinking(false); }
-  }, [chatInput, chatHistory, code, problemId, sessionId, playBase64Audio]);
+  }, [chatInput, chatHistory, code, problemId, sessionId, playBase64Audio, API_URL]);
 
   const toggleRecording = () => {
     if (isRecording) {
@@ -198,7 +198,7 @@ const Interview = () => {
       }
       if (res.data.audio) playBase64Audio(res.data.audio);
     } catch (err) { console.error("Sync Error:", err); }
-  }, [code, output, problem, sessionId, playBase64Audio]);
+  }, [code, output, problem, sessionId, playBase64Audio, API_URL]);
 
   useEffect(() => {
     if (timeLeft <= 0) { handleFinalSubmit(); return; }
