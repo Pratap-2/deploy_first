@@ -112,9 +112,16 @@ async def parse_resume(file: UploadFile = File(...), session_id: str = None):
     file_hash = hashlib.md5(file_bytes).hexdigest()
 
     # ── Cache hit: return previous result immediately ──────────
-    if file_hash in _resume_cache:
-        print(f"[RESUME CACHE HIT] {file.filename} ({file_hash[:8]}...)")
-        cached_data = _resume_cache[file_hash]
+    cache_dir = os.path.join(os.path.dirname(__file__), "resume_cache")
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_file = os.path.join(cache_dir, f"cache_{file_hash}.json")
+    
+    if os.path.exists(cache_file):
+        print(f"[RESUME CACHE HIT] {file.filename} ({file_hash[:8]}...) loaded from file")
+        with open(cache_file, "r") as f:
+            import json
+            cached_data = json.load(f)
+            
         if session_id:
             from app.services.session_store import load_session, save_session
             sessions = load_session(session_id)
@@ -134,9 +141,11 @@ async def parse_resume(file: UploadFile = File(...), session_id: str = None):
         parser = CVParser()
         data = parser.parse_cv(tmp_path)
 
-        # Store in cache
-        _resume_cache[file_hash] = data
-        print(f"[RESUME CACHE STORE] {file.filename} ({file_hash[:8]}...)")
+        # Store in cache file
+        with open(cache_file, "w") as f:
+            import json
+            json.dump(data, f)
+        print(f"[RESUME CACHE STORE] {file.filename} ({file_hash[:8]}...) saved to {cache_file}")
 
         if session_id:
             from app.services.session_store import load_session, save_session
