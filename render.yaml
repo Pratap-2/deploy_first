@@ -19,7 +19,7 @@ services:
         sync: false
 
   # Frontend Service
-  - type: web
+  - type: static_site
     name: code-ide-frontend
     env: static
     rootDir: client
