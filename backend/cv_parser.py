@@ -129,7 +129,7 @@ class CVParser:
             chunk_overlap=50
         )
         self.embeddings = GoogleGenerativeAIEmbeddings(
-            model="gemini-embedding-001"
+            model="models/embedding-001"
         )
         
         # Groq LLM
